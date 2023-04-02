@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 #
 # Copyright (c) 2012 - 2020 YCSB contributors. All rights reserved.
 #
@@ -33,87 +33,89 @@ except ImportError:
 
 BASE_URL = "https://github.com/brianfrankcooper/YCSB/tree/master/"
 COMMANDS = {
-    "shell" : {
-        "command"     : "",
-        "description" : "Interactive mode",
-        "main"        : "site.ycsb.CommandLine",
+    "shell": {
+        "command": "",
+        "description": "Interactive mode",
+        "main": "site.ycsb.CommandLine",
     },
-    "load" : {
-        "command"     : "-load",
-        "description" : "Execute the load phase",
-        "main"        : "site.ycsb.Client",
+    "load": {
+        "command": "-load",
+        "description": "Execute the load phase",
+        "main": "site.ycsb.Client",
     },
-    "run" : {
-        "command"     : "-t",
-        "description" : "Execute the transaction phase",
-        "main"        : "site.ycsb.Client",
+    "run": {
+        "command": "-t",
+        "description": "Execute the transaction phase",
+        "main": "site.ycsb.Client",
     },
 }
 
 DATABASES = {
-    "accumulo1.9"     : "site.ycsb.db.accumulo.AccumuloClient",
-    "aerospike"    : "site.ycsb.db.AerospikeClient",
-    "arangodb"     : "site.ycsb.db.arangodb.ArangoDBClient",
-    "arangodb3"     : "site.ycsb.db.arangodb.ArangoDBClient",
-    "asynchbase"   : "site.ycsb.db.AsyncHBaseClient",
-    "azurecosmos" : "site.ycsb.db.AzureCosmosClient",
-    "azuretablestorage" : "site.ycsb.db.azuretablestorage.AzureClient",
-    "basic"        : "site.ycsb.BasicDB",
-    "basicts"      : "site.ycsb.BasicTSDB",
+    "accumulo1.9": "site.ycsb.db.accumulo.AccumuloClient",
+    "aerospike": "site.ycsb.db.AerospikeClient",
+    "arangodb": "site.ycsb.db.arangodb.ArangoDBClient",
+    "arangodb3": "site.ycsb.db.arangodb.ArangoDBClient",
+    "asynchbase": "site.ycsb.db.AsyncHBaseClient",
+    "azurecosmos": "site.ycsb.db.AzureCosmosClient",
+    "azuretablestorage": "site.ycsb.db.azuretablestorage.AzureClient",
+    "basic": "site.ycsb.BasicDB",
+    "basicts": "site.ycsb.BasicTSDB",
     "cassandra-cql": "site.ycsb.db.CassandraCQLClient",
     "cassandra2-cql": "site.ycsb.db.CassandraCQLClient",
-    "cloudspanner" : "site.ycsb.db.cloudspanner.CloudSpannerClient",
-    "couchbase"    : "site.ycsb.db.CouchbaseClient",
-    "couchbase2"   : "site.ycsb.db.couchbase2.Couchbase2Client",
-    "crail"        : "site.ycsb.db.crail.CrailClient",
-    "dynamodb"     : "site.ycsb.db.DynamoDBClient",
+    "cloudspanner": "site.ycsb.db.cloudspanner.CloudSpannerClient",
+    "couchbase": "site.ycsb.db.CouchbaseClient",
+    "couchbase2": "site.ycsb.db.couchbase2.Couchbase2Client",
+    "crail": "site.ycsb.db.crail.CrailClient",
+    "dynamodb": "site.ycsb.db.DynamoDBClient",
     "elasticsearch": "site.ycsb.db.ElasticsearchClient",
     "elasticsearch5": "site.ycsb.db.elasticsearch5.ElasticsearchClient",
     "elasticsearch5-rest": "site.ycsb.db.elasticsearch5.ElasticsearchRestClient",
-    "foundationdb" : "site.ycsb.db.foundationdb.FoundationDBClient",
-    "geode"        : "site.ycsb.db.GeodeClient",
-    "googlebigtable"  : "site.ycsb.db.GoogleBigtableClient",
-    "googledatastore" : "site.ycsb.db.GoogleDatastoreClient",
-    "griddb"       : "site.ycsb.db.griddb.GridDBClient",
-    "hbase1"      : "site.ycsb.db.hbase1.HBaseClient1",
-    "hbase2"      : "site.ycsb.db.hbase2.HBaseClient2",
-    "ignite"       : "site.ycsb.db.ignite.IgniteClient",
-    "ignite-sql"   : "site.ycsb.db.ignite.IgniteSqlClient",
+    "foundationdb": "site.ycsb.db.foundationdb.FoundationDBClient",
+    "geode": "site.ycsb.db.GeodeClient",
+    "googlebigtable": "site.ycsb.db.GoogleBigtableClient",
+    "googledatastore": "site.ycsb.db.GoogleDatastoreClient",
+    "griddb": "site.ycsb.db.griddb.GridDBClient",
+    "hbase1": "site.ycsb.db.hbase1.HBaseClient1",
+    "hbase2": "site.ycsb.db.hbase2.HBaseClient2",
+    "ignite": "site.ycsb.db.ignite.IgniteClient",
+    "ignite-sql": "site.ycsb.db.ignite.IgniteSqlClient",
     "infinispan-cs": "site.ycsb.db.InfinispanRemoteClient",
-    "infinispan"   : "site.ycsb.db.InfinispanClient",
-    "jdbc"         : "site.ycsb.db.JdbcDBClient",
-    "kudu"         : "site.ycsb.db.KuduYCSBClient",
-    "memcached"    : "site.ycsb.db.MemcachedClient",
-    "maprdb"       : "site.ycsb.db.mapr.MapRDBClient",
-    "maprjsondb"   : "site.ycsb.db.mapr.MapRJSONDBClient",
-    "mongodb"      : "site.ycsb.db.MongoDbClient",
+    "infinispan": "site.ycsb.db.InfinispanClient",
+    "jdbc": "site.ycsb.db.JdbcDBClient",
+    "kudu": "site.ycsb.db.KuduYCSBClient",
+    "memcached": "site.ycsb.db.MemcachedClient",
+    "maprdb": "site.ycsb.db.mapr.MapRDBClient",
+    "maprjsondb": "site.ycsb.db.mapr.MapRJSONDBClient",
+    "mongodb": "site.ycsb.db.MongoDbClient",
     "mongodb-async": "site.ycsb.db.AsyncMongoDbClient",
-    "nosqldb"      : "site.ycsb.db.NoSqlDbClient",
-    "orientdb"     : "site.ycsb.db.OrientDBClient",
-    "postgrenosql" : "site.ycsb.postgrenosql.PostgreNoSQLDBClient",
-    "rados"        : "site.ycsb.db.RadosClient",
-    "redis"        : "site.ycsb.db.RedisClient",
-    "rest"         : "site.ycsb.webservice.rest.RestClient",
-    "riak"         : "site.ycsb.db.riak.RiakKVClient",
-    "rocksdb"      : "site.ycsb.db.rocksdb.RocksDBClient",
-    "s3"           : "site.ycsb.db.S3Client",
-    "seaweedfs"    : "site.ycsb.db.seaweed.SeaweedClient",
-    "scylla"       : "site.ycsb.db.scylla.ScyllaCQLClient",
-    "solr7"        : "site.ycsb.db.solr7.SolrClient",
-    "tarantool"    : "site.ycsb.db.TarantoolClient",
-    "tablestore"   : "site.ycsb.db.tablestore.TableStoreClient",
-    "zookeeper"    : "site.ycsb.db.zookeeper.ZKClient"
+    "nosqldb": "site.ycsb.db.NoSqlDbClient",
+    "menciusrevisited": "site.ycsb.db.MenciusRevisitedClient",
+    "orientdb": "site.ycsb.db.OrientDBClient",
+    "postgrenosql": "site.ycsb.postgrenosql.PostgreNoSQLDBClient",
+    "rados": "site.ycsb.db.RadosClient",
+    "redis": "site.ycsb.db.RedisClient",
+    "rest": "site.ycsb.webservice.rest.RestClient",
+    "riak": "site.ycsb.db.riak.RiakKVClient",
+    "rocksdb": "site.ycsb.db.rocksdb.RocksDBClient",
+    "s3": "site.ycsb.db.S3Client",
+    "seaweedfs": "site.ycsb.db.seaweed.SeaweedClient",
+    "scylla": "site.ycsb.db.scylla.ScyllaCQLClient",
+    "solr7": "site.ycsb.db.solr7.SolrClient",
+    "tarantool": "site.ycsb.db.TarantoolClient",
+    "tablestore": "site.ycsb.db.tablestore.TableStoreClient",
+    "zookeeper": "site.ycsb.db.zookeeper.ZKClient"
 }
 
 OPTIONS = {
-    "-P file"        : "Specify workload file",
-    "-p key=value"   : "Override workload property",
-    "-s"             : "Print status to stderr",
-    "-target n"      : "Target ops/sec (default: unthrottled)",
-    "-threads n"     : "Number of client threads (default: 1)",
-    "-cp path"       : "Additional Java classpath entries",
-    "-jvm-args args" : "Additional arguments to the JVM",
+    "-P file": "Specify workload file",
+    "-p key=value": "Override workload property",
+    "-s": "Print status to stderr",
+    "-target n": "Target ops/sec (default: unthrottled)",
+    "-threads n": "Number of client threads (default: 1)",
+    "-cp path": "Additional Java classpath entries",
+    "-jvm-args args": "Additional arguments to the JVM",
 }
+
 
 def usage():
     output = io.BytesIO()
@@ -142,6 +144,8 @@ def usage():
 
 # Python 2.6 doesn't have check_output. Add the method as it is in Python 2.7
 # Based on https://github.com/python/cpython/blob/2.7/Lib/subprocess.py#L545
+
+
 def check_output(*popenargs, **kwargs):
     r"""Run command with arguments and return its output as a byte string.
 
@@ -176,14 +180,18 @@ def check_output(*popenargs, **kwargs):
         raise error
     return output
 
+
 def debug(message):
     print >> sys.stderr, "[DEBUG] ", message
+
 
 def warn(message):
     print >> sys.stderr, "[WARN] ", message
 
+
 def error(message):
     print >> sys.stderr, "[ERROR] ", message
+
 
 def find_jars(dir, glob='*.jar'):
     jars = []
@@ -192,11 +200,13 @@ def find_jars(dir, glob='*.jar'):
             jars.append(os.path.join(dirpath, filename))
     return jars
 
+
 def get_ycsb_home():
     dir = os.path.abspath(os.path.dirname(sys.argv[0]))
     while "LICENSE.txt" not in os.listdir(dir):
         dir = os.path.join(dir, os.path.pardir)
     return os.path.abspath(dir)
+
 
 def is_distribution():
     # If there's a top level pom, we're a source checkout. otherwise a dist artifact
@@ -207,6 +217,8 @@ def is_distribution():
 # will invoke the 'package' goal for the given binding in order to resolve intra-project deps
 # presumes maven properly handles system-specific path separators
 # Given module is full module name eg. 'core' or 'couchbase-binding'
+
+
 def get_classpath_from_maven(module):
     try:
         debug("Running 'mvn -pl site.ycsb:" + module + " -am package -DskipTests "
@@ -218,21 +230,25 @@ def get_classpath_from_maven(module):
                                    "-Dmdep.outputFilterFile=true"])
         # the above outputs a "classpath=/path/tojar:/path/to/other/jar" for each module
         # the last module will be the datastore binding
-        line = [x for x in mvn_output.splitlines() if x.startswith("classpath=")][-1:]
+        line = [x for x in mvn_output.splitlines(
+        ) if x.startswith("classpath=")][-1:]
         return line[0][len("classpath="):]
     except subprocess.CalledProcessError, err:
         error("Attempting to generate a classpath from Maven failed "
-              "with return code '" + str(err.returncode) + "'. The output from "
+              "with return code '" +
+              str(err.returncode) + "'. The output from "
               "Maven follows, try running "
               "'mvn -DskipTests package dependency:build=classpath' on your "
-              "own and correct errors." + os.linesep + os.linesep + "mvn output:" + os.linesep
+              "own and correct errors." + os.linesep +
+              os.linesep + "mvn output:" + os.linesep
               + err.output)
         sys.exit(err.returncode)
 
+
 def main():
     p = argparse.ArgumentParser(
-            usage=usage(),
-            formatter_class=argparse.RawDescriptionHelpFormatter)
+        usage=usage(),
+        formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument('-cp', dest='classpath', help="""Additional classpath
                    entries, e.g.  '-cp /tmp/hbase-1.0.1.1/conf'. Will be
                    prepended to the YCSB classpath.""")
@@ -291,8 +307,10 @@ def main():
         warn("Running against a source checkout. In order to get our runtime "
              "dependencies we'll have to invoke Maven. Depending on the state "
              "of your system, this may take ~30-45 seconds")
-        db_location = "core" if (binding == "basic" or binding == "basicts") else binding
-        project = "core" if (binding == "basic" or binding == "basicts") else binding + "-binding"
+        db_location = "core" if (
+            binding == "basic" or binding == "basicts") else binding
+        project = "core" if (binding == "basic" or binding ==
+                             "basicts") else binding + "-binding"
         db_dir = os.path.join(ycsb_home, db_location)
         # goes first so we can rely on side-effect of package
         maven_says = get_classpath_from_maven(project)
@@ -320,6 +338,7 @@ def main():
             return 1
         else:
             raise
+
 
 if __name__ == '__main__':
     sys.exit(main())
