@@ -21,25 +21,14 @@
 #   every series will have a value at every timestamp.
 #
 #   Read/insert ratio: 50/50
-#   Cardinality: 16 per key (field), 64 fields for a total of 1,024 
-#                time series.
 workload=site.ycsb.workloads.CoreWorkload
 
-recordcount=1000000
-operationcount=1000000
-
-fieldlength=8
-fieldcount=64
-tagcount=4
-tagcardinality=1,2,4,2
-
-sparsity=0.0
-delayedSeries=0.0
-delayedIntervals=0
-
-timestampunits=SECONDS
-timestampinterval=60
-querytimespan=3600
+recordcount=1000
+operationcount=1000
 
 readproportion=0.50
 updateproportion=0.50
+
+requestdistribution=zipfian
+
+valuelength=1024

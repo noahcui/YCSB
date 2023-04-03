@@ -104,10 +104,10 @@ public class MenciusRevisitedClient extends DB {
     String ip = parts[0];
     int port = Integer.parseInt(parts[1]);
     InetAddress address = InetAddress.getByName(ip);
-    Socket socket = new Socket(address, port);
+    // Socket socket = new Socket(address, port);
 
     // This is for local Docker testing
-    // Socket socket = new Socket("", port);
+    Socket socket = new Socket("", port);
     return socket;
   }
 
@@ -238,6 +238,17 @@ public class MenciusRevisitedClient extends DB {
   @Override
   public void init() throws DBException {
     try {
+      
+      Properties props = getProperties();
+      String myCustomParamString = props.getProperty("valuelength");
+      if (myCustomParamString != null) {
+        try {
+          valueLength = Integer.parseInt(myCustomParamString);
+        } catch (NumberFormatException e) {
+          throw new DBException("Invalid value for my_custom_param: " + myCustomParamString, e);
+        }
+      }
+
       URL url = new URL("http://localhost:8080/replicaList");
       HttpURLConnection conn = (HttpURLConnection) url.openConnection();
       conn.setRequestMethod("POST");
@@ -270,6 +281,7 @@ public class MenciusRevisitedClient extends DB {
   }
 
   private int commandID = 0;
+  private int valueLength = 256;
 
   @Override
   public void cleanup() throws DBException {
@@ -286,12 +298,6 @@ public class MenciusRevisitedClient extends DB {
     return toret;
   }
 
-  public static long randomPositiveLong(long max) {
-    Random random = new Random();
-    long value = Math.abs(random.nextLong()) % max + 1;
-    return value;
-  }
-
   public static String randomString(int length) {
     Random random = new Random();
     StringBuilder builder = new StringBuilder();
@@ -303,7 +309,7 @@ public class MenciusRevisitedClient extends DB {
 
   @Override
   public Status read(String table, String key, Set<String> fields, Map<String, ByteIterator> result) {
-    long k= randomPositiveLong(1024);
+    long k= Long.parseLong(key.replace("user", ""));
     ProposeReplyTS reply = sendRequestAndAwaitForReply((byte)2, getcommandID(), k, "");
     if (reply == null) {
       return Status.SERVICE_UNAVAILABLE;
@@ -329,8 +335,8 @@ public class MenciusRevisitedClient extends DB {
   @Override
   public Status update(String table, String key, Map<String, ByteIterator> values) {
     try {
-      String value = randomString(1024);
-      long k = randomPositiveLong(1024);
+      String value = randomString(valueLength);
+      long k= Long.parseLong(key.replace("user", ""));
       ProposeReplyTS reply = sendRequestAndAwaitForReply((byte)1, getcommandID(), k, value);
       if (reply==null){
         return Status.ERROR;
