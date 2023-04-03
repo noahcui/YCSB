@@ -16,21 +16,15 @@
  */
 
 package site.ycsb.db;
-// import java.lang.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-// import java.util.Properties;
 import java.util.Set;
-// import java.util.SortedMap;
 import java.util.Vector;
-// import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import site.ycsb.StringByteIterator;
 
-// import site.ycsb.ByteArrayByteIterator;
 import site.ycsb.ByteIterator;
 import site.ycsb.DB;
 import site.ycsb.DBException;
@@ -110,8 +104,10 @@ public class MenciusRevisitedClient extends DB {
     String ip = parts[0];
     int port = Integer.parseInt(parts[1]);
     InetAddress address = InetAddress.getByName(ip);
-    // Socket socket = new Socket(address, port);
-    Socket socket = new Socket("", port);
+    Socket socket = new Socket(address, port);
+
+    // This is for local Docker testing
+    // Socket socket = new Socket("", port);
     return socket;
   }
 
@@ -129,7 +125,6 @@ public class MenciusRevisitedClient extends DB {
     }
 
     public void marshal(OutputStream out) throws IOException {
-      // byte[] b =
       byte[] bs = new byte[8];
       byte[] b = new byte[4];
       int tmp32 = commandId;
@@ -155,7 +150,6 @@ public class MenciusRevisitedClient extends DB {
       bs[6] = (byte) (tmp64 >> 48);
       bs[7] = (byte) (tmp64 >> 56);
       out.write(bs);
-      //System.out.println(timestamp);
     }
   }
 
@@ -179,7 +173,6 @@ public class MenciusRevisitedClient extends DB {
 
       wire.readFully(data, 0, (int) vl);
       value = new String(data);
-      //System.out.println(vl);
       wire.readFully(bs, 0, 8);
 
       timestamp = ((long) (bs[0] & 0xFF) | ((long) (bs[1] & 0xFF) << 8) | ((long) (bs[2] & 0xFF) << 16)
@@ -270,7 +263,9 @@ public class MenciusRevisitedClient extends DB {
       String[] addrs = resp.replicaList.toArray(new String[resp.replicaList.size()]);
       cli = newClient(addrs[(int) resp.leaderIdx]);
     } catch (Exception e) {
+      System.out.println(e);
     } finally {
+      // do nothing, need to write something to compile.
     }
   }
 
@@ -278,7 +273,11 @@ public class MenciusRevisitedClient extends DB {
 
   @Override
   public void cleanup() throws DBException {
-    // do nothing
+    try{
+      cli.close();
+    }catch(Exception e){
+      System.out.println(e);
+    }
   }
 
   public int getcommandID() {
@@ -287,10 +286,10 @@ public class MenciusRevisitedClient extends DB {
     return toret;
   }
 
-  public static long randomPositiveLong() {
+  public static long randomPositiveLong(long max) {
     Random random = new Random();
-    long value = random.nextLong();
-    return (value == Long.MIN_VALUE) ? 0 : Math.abs(value);
+    long value = Math.abs(random.nextLong()) % max + 1;
+    return value;
   }
 
   public static String randomString(int length) {
@@ -302,14 +301,15 @@ public class MenciusRevisitedClient extends DB {
     return builder.toString();
   }
 
-
   @Override
   public Status read(String table, String key, Set<String> fields, Map<String, ByteIterator> result) {
-    long k= randomPositiveLong();
+    long k= randomPositiveLong(1024);
     ProposeReplyTS reply = sendRequestAndAwaitForReply((byte)2, getcommandID(), k, "");
-    // TODO
     if (reply == null) {
       return Status.SERVICE_UNAVAILABLE;
+    }
+    if (reply.ok!=1){
+      return Status.ERROR;
     }
     if (reply.value == "") {
       result.put(Long.toString(k), new StringByteIterator(reply.value));
@@ -322,25 +322,22 @@ public class MenciusRevisitedClient extends DB {
   @Override
   public Status scan(String table, String startkey, int recordcount,
       Set<String> fields, Vector<HashMap<String, ByteIterator>> result) {
-    // do nothing
-    return Status.OK;
-  }
-
-  private String convertMapToDelimiterSeparatedString(Map<String, String> map) {
-    return map.entrySet().stream()
-        .map(entry -> entry.getKey() + "=" + entry.getValue())
-        .collect(Collectors.joining("|"));
+    // need an return value, do nothing
+    return Status.NOT_IMPLEMENTED;
   }
 
   @Override
   public Status update(String table, String key, Map<String, ByteIterator> values) {
-    // TODO
     try {
-      Map<String, String> stringValues = StringByteIterator.getStringMap(values);
       String value = randomString(1024);
-      long k = randomPositiveLong();
-      sendRequestAndAwaitForReply((byte)1, getcommandID(), k, value);
-
+      long k = randomPositiveLong(1024);
+      ProposeReplyTS reply = sendRequestAndAwaitForReply((byte)1, getcommandID(), k, value);
+      if (reply==null){
+        return Status.ERROR;
+      }
+      if (reply.ok!=1){
+        return Status.ERROR;
+      }
       return Status.OK;
     } catch (Exception e) {
       e.printStackTrace();
@@ -355,8 +352,8 @@ public class MenciusRevisitedClient extends DB {
 
   @Override
   public Status delete(String table, String key) {
-    // do nothing
-    return Status.OK;
+    // need an return value, do nothing
+    return Status.NOT_IMPLEMENTED;
   }
 
 }
