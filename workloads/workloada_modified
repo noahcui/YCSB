@@ -23,12 +23,13 @@
 #   Read/insert ratio: 50/50
 workload=site.ycsb.workloads.CoreWorkload
 
-recordcount=1000
-operationcount=1000
+recordcount=100000
+operationcount=100000
 
 readproportion=0.50
 updateproportion=0.50
 
-requestdistribution=zipfian
+requestdistribution=uniform
+insertorder=hashed
 
 valuelength=1024

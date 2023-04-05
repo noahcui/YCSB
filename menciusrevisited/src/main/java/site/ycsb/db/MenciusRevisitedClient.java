@@ -104,10 +104,10 @@ public class MenciusRevisitedClient extends DB {
     String ip = parts[0];
     int port = Integer.parseInt(parts[1]);
     InetAddress address = InetAddress.getByName(ip);
-    // Socket socket = new Socket(address, port);
+    Socket socket = new Socket(address, port);
 
     // This is for local Docker testing
-    Socket socket = new Socket("", port);
+    // Socket socket = new Socket("", port);
     return socket;
   }
 
@@ -230,11 +230,27 @@ public class MenciusRevisitedClient extends DB {
       reply.unmarshal(dis);
       return reply;
     } catch (IOException e) {
-      e.printStackTrace();
-      return null;
+      // e.printStackTrace();
+      try{
+        cli.close();
+      }catch(Exception e1){
+        // donothing
+      }     
+      reinit();
+      return sendRequestAndAwaitForReply(typeID, cmdID, key, value);
     }
   }
 
+  public void reinit() {
+    try {
+      Random random = new Random();
+      int newLeaderID = random.nextInt(addrs.length);
+      cli = newClient(addrs[newLeaderID]);
+    } catch (Exception e) {
+      // e.printStackTrace();
+    }
+  }
+  private String[] addrs;
   @Override
   public void init() throws DBException {
     try {
@@ -271,7 +287,7 @@ public class MenciusRevisitedClient extends DB {
 
       String jsonResponse = response.toString();
       resp = fromJsonString(jsonResponse);
-      String[] addrs = resp.replicaList.toArray(new String[resp.replicaList.size()]);
+      addrs = resp.replicaList.toArray(new String[resp.replicaList.size()]);
       cli = newClient(addrs[(int) resp.leaderIdx]);
     } catch (Exception e) {
       System.out.println(e);
