@@ -104,10 +104,11 @@ public class MenciusRevisitedClient extends DB {
     String ip = parts[0];
     int port = Integer.parseInt(parts[1]);
     InetAddress address = InetAddress.getByName(ip);
-    Socket socket = new Socket(address, port);
+    // Socket socket = new Socket(address, port);
 
     // This is for local Docker testing
-    // Socket socket = new Socket("", port);
+    Socket socket = new Socket("", port);
+    socket.setTcpNoDelay(true);
     return socket;
   }
 
