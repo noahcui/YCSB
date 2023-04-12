@@ -104,11 +104,12 @@ public class MenciusRevisitedClient extends DB {
     String ip = parts[0];
     int port = Integer.parseInt(parts[1]);
     InetAddress address = InetAddress.getByName(ip);
-    Socket socket = new Socket(address, port);
-
+    Socket socket = new Socket();
+    socket.connect(new InetSocketAddress(address, port), 1000);
+    socket.setSoTimeout(2000);
     // This is for local Docker testing
     // Socket socket = new Socket("", port);
-    socket.setTcpNoDelay(true);
+    socket.setTcpNoDelay(true);    
     return socket;
   }
 
@@ -232,13 +233,15 @@ public class MenciusRevisitedClient extends DB {
       return reply;
     } catch (IOException e) {
       // e.printStackTrace();
+      // System.out.println(cliID);
       try{
         cli.close();
       }catch(Exception e1){
         // donothing
       }     
       reinit();
-      return sendRequestAndAwaitForReply(typeID, cmdID, key, value);
+      return null;
+      // return sendRequestAndAwaitForReply(typeID, cmdID, key, value);
     }
   }
 
@@ -251,7 +254,9 @@ public class MenciusRevisitedClient extends DB {
       // e.printStackTrace();
     }
   }
+
   private String[] addrs;
+  private int cliID;
   @Override
   public void init() throws DBException {
     try {
@@ -290,6 +295,8 @@ public class MenciusRevisitedClient extends DB {
       resp = fromJsonString(jsonResponse);
       addrs = resp.replicaList.toArray(new String[resp.replicaList.size()]);
       cli = newClient(addrs[(int) resp.leaderIdx]);
+      Random random = new Random();
+      cliID = random.nextInt();
     } catch (Exception e) {
       System.out.println(e);
     } finally {
@@ -329,9 +336,11 @@ public class MenciusRevisitedClient extends DB {
     long k= Long.parseLong(key.replace("user", ""));
     ProposeReplyTS reply = sendRequestAndAwaitForReply((byte)2, getcommandID(), k, "");
     if (reply == null) {
+      reinit();
       return Status.SERVICE_UNAVAILABLE;
     }
     if (reply.ok!=1){
+      reinit();
       return Status.ERROR;
     }
     if (reply.value == "") {
@@ -356,9 +365,11 @@ public class MenciusRevisitedClient extends DB {
       long k= Long.parseLong(key.replace("user", ""));
       ProposeReplyTS reply = sendRequestAndAwaitForReply((byte)1, getcommandID(), k, value);
       if (reply==null){
-        return Status.ERROR;
+        reinit();
+        return Status.SERVICE_UNAVAILABLE;
       }
       if (reply.ok!=1){
+        reinit();
         return Status.ERROR;
       }
       return Status.OK;
