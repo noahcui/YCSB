@@ -187,6 +187,10 @@ public class Measurements {
     try {
       OneMeasurement m = getOpMeasurement(operation);
       m.measure(latency);
+      if (!operation.contains("FAILED")) {
+        OneMeasurement m2 = getOpMeasurement("TOTAL");
+        m2.measure(latency);
+      }
     } catch (java.lang.ArrayIndexOutOfBoundsException e) {
       // This seems like a terribly hacky way to cover up for a bug in the measurement code
       System.out.println("ERROR: java.lang.ArrayIndexOutOfBoundsException - ignoring and continuing");
@@ -206,6 +210,10 @@ public class Measurements {
     try {
       OneMeasurement m = getOpIntendedMeasurement(operation);
       m.measure(latency);
+      if (!operation.contains("FAILED")) {
+        OneMeasurement m2 = getOpIntendedMeasurement("TOTAL");
+        m2.measure(latency);
+      }
     } catch (java.lang.ArrayIndexOutOfBoundsException e) {
       // This seems like a terribly hacky way to cover up for a bug in the measurement code
       System.out.println("ERROR: java.lang.ArrayIndexOutOfBoundsException - ignoring and continuing");
