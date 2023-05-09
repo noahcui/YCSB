@@ -191,7 +191,7 @@ LICENSE file.
     </dependency>
     <dependency>
       <groupId>site.ycsb</groupId>
-      <artifactId>menciusrevisited-binding</artifactId>
+      <artifactId>goleveldb-binding</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

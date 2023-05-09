@@ -25,8 +25,8 @@ LICENSE file.
     <relativePath>../binding-parent</relativePath>
   </parent>
   
-  <artifactId>menciusrevisited-binding</artifactId>
-  <name>Mencius Revisited Binding</name>
+  <artifactId>goleveldb-binding</artifactId>
+  <name>go leveldb Binding</name>
   <packaging>jar</packaging>
 
   <dependencies>

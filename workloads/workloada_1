@@ -1,0 +1,16 @@
+workload=site.ycsb.workloads.CoreWorkload
+
+recordcount=100000
+maxexecutiontime=60
+readproportion=0.50
+updateproportion=0.50
+
+hdrhistogram.percentiles=50,80,90,95,99,99.9
+
+requestdistribution=uniform
+insertorder=hashed
+measurement.interval=intended
+
+valuesize=1
+
+warmuptime=1
