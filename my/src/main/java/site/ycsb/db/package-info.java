@@ -17,6 +17,6 @@
 /**
  * The YCSB binding for <a href=
  * "http://www.oracle.com/us/products/database/nosql/overview/index.html">Oracle
- * 's goleveldb</a>.
+ * 's my</a>.
  */
 package site.ycsb.db;

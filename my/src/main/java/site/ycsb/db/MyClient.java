@@ -35,91 +35,70 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 /**
-* A database interface layer for goleveldb Revisited Database.
-*/
-public class GoLevelDBClient extends DB {
-
-  /**
- * Struct of GetReplicaListReply.
+ * A database interface layer for my Database.
  */
-  public class Command {
-    public static final byte PUT = 0;
-    public static final byte GET = 1;
-    public static final byte ERR = 3;
+public class MyClient extends DB {
 
-    private byte commandType;
-    private long commandID;
-    private long clientID;
+  // Replica list
+  private String[] replicaList={"localhost:10001", "localhost:11001", "localhost:12001"};
+  /**
+   * Struct of GetReplicaListReply.
+   */
+  public class Command {
+    public static final int GET = 0;
+    public static final int PUT = 1;
+    public static final int DEL = 2;
+    public static final int OK = 0;
+    public static final int REJECT = 1;
+    public static final String RETRY = "retry";
+    public static final String BAD="bad command";
+    public static final String LEADERIS="leader is ...";
+    public static final String KEYNOTFOUND="key not found";
+    public static final String EMPTY="";
+    private int type;
     private String key;
     private String value;
-    
+
     public Command() {
-      this.commandType = GET;
-      this.commandID = 0;
-      this.clientID = 0;
+      this.type = GET;
       this.key = "";
       this.value = "";
     }
-    
-    public Command(byte commandType, long commandID, long clientID, String key, String value) {
-      this.commandType = commandType;
-      this.commandID = commandID;
-      this.clientID = clientID;
+  
+    public Command(int type, String key, String value) {
+      this.type = type;
       this.key = key;
       this.value = value;
     }
-
+  
     public void marshal(OutputStream wire) throws IOException {
-      long kl = key.length();
-      long vl = value.length();
-  
-      wire.write(commandType);
-      writeLong(wire, commandID);
-      writeLong(wire, clientID);
-      writeLong(wire, kl);
-      writeLong(wire, vl);
-  
-      wire.write(key.getBytes(StandardCharsets.UTF_8));
-      wire.write(value.getBytes(StandardCharsets.UTF_8));
-    }
-    
-    public void unmarshal(InputStream wire) throws IOException {
-      commandType = (byte) wire.read();
-  
-      commandID = readLong(wire);
-      clientID = readLong(wire);
-  
-      long kl = readLong(wire);
-      long vl = readLong(wire);
-  
-      byte[] keyBytes = new byte[(int) kl];
-      wire.read(keyBytes);
-      key = new String(keyBytes, StandardCharsets.UTF_8);
-  
-      byte[] valueBytes = new byte[(int) vl];
-      wire.read(valueBytes);
-      value = new String(valueBytes, StandardCharsets.UTF_8);
+      String cmdStr = this.getCommandString() + "\n";
+      wire.write(cmdStr.getBytes(StandardCharsets.UTF_8));
+      wire.flush();
     }
   
-    private void writeLong(OutputStream out, long v) throws IOException {
-      for (int i = 0; i < 8; i++) {
-        out.write((int) (v & 0xff));
-        v >>= 8;
+    public String unmarshal(InputStream wire) throws IOException {
+      BufferedReader reader = new BufferedReader(new InputStreamReader(wire, StandardCharsets.UTF_8));
+      String cmdStr = reader.readLine();
+
+      return cmdStr;
+    }
+  
+    private String getCommandString() {
+      String cmdTypeStr;
+      if (type == GET) {
+        cmdTypeStr = "get";
+      } else if (type == PUT) {
+        cmdTypeStr = "put";
+      } else {
+        cmdTypeStr = "del";
       }
+      return cmdTypeStr + " " + key + " " + value;
     }
-    
-    private long readLong(InputStream in) throws IOException {
-      long v = 0;
-      for (int i = 0; i < 8; i++) {
-        v |= (((long) in.read()) & 0xff) << (8 * i);
-      }
-      return v;
-    }
-  
   }
 
-
   private Socket cli;
+
   public static Socket newClient(String addr) throws Exception {
     String[] parts = addr.split(":");
     String ip = parts[0];
@@ -127,12 +106,13 @@ public class GoLevelDBClient extends DB {
     InetAddress address = InetAddress.getByName(ip);
     Socket socket = new Socket();
     socket.connect(new InetSocketAddress(address, port), 1000);
-    socket.setSoTimeout(2000);
-    socket.setTcpNoDelay(true);    
+    // socket.setSoTimeout(999999999);
+    socket.setTcpNoDelay(true);
     return socket;
   }
 
   private int cliID;
+
   @Override
   public void init() throws DBException {
     try {
@@ -145,13 +125,19 @@ public class GoLevelDBClient extends DB {
           throw new DBException("Invalid value for my_custom_param: " + myCustomParamString, e);
         }
       }
-      String addr = "localhost:7070";
-      cli = newClient(addr);
+      
       Random random = new Random();
       cliID = random.nextInt();
+      int sid = Math.abs(cliID) % 3;
+      String addr = replicaList[1];
+      cli = newClient(addr);
+      String reply1 = sendRequestAndAwaitForReply(Command.PUT, getcommandID(), "warmup", "hello");
+      System.out.println(reply1);
       // warming up
-      for (int i=0; i<10; i++){
-        sendRequestAndAwaitForReply(Command.GET, getcommandID(), "warmup", "");
+      for (int i = 0; i < 10; i++) {
+        
+        String reply = sendRequestAndAwaitForReply(Command.GET, getcommandID(), "warmup", "hello");
+        System.out.println(reply);
       }
     } catch (Exception e) {
       System.out.println(e);
@@ -163,12 +149,11 @@ public class GoLevelDBClient extends DB {
   private int commandID = 0;
   private int valueSize = 256;
 
-  
   @Override
   public void cleanup() throws DBException {
-    try{
+    try {
       cli.close();
-    }catch(Exception e){
+    } catch (Exception e) {
       System.out.println(e);
     }
   }
@@ -188,14 +173,14 @@ public class GoLevelDBClient extends DB {
     return builder.toString();
   }
 
-  public Command sendRequestAndAwaitForReply(byte typeID, int cmdID, String key, String value) {
+  public String sendRequestAndAwaitForReply(int typeID, int cmdID, String key, String value) {
     try {
       OutputStream outToServer = cli.getOutputStream();
       InputStream inFromServer = cli.getInputStream();
 
       // Create and send Propose
-      Command cmd = new Command(typeID, cmdID, cliID, key, value);
-
+      Command cmd = new Command(typeID, key, value);
+      
       DataOutputStream dos = new DataOutputStream(outToServer);
       cmd.marshal(dos);
       dos.flush();
@@ -203,16 +188,22 @@ public class GoLevelDBClient extends DB {
       // Receive ProposeReplyTS
       DataInputStream dis = new DataInputStream(inFromServer);
       Command reply = new Command();
-      reply.unmarshal(dis);
-      return reply;
+      String msg=reply.unmarshal(dis);
+      // if(msg == null){
+      //   return Command.EMPTY;
+      // }
+      if(msg.equals(Command.RETRY)){
+        return sendRequestAndAwaitForReply(typeID, cmdID, key, value);
+      }
+      return msg;
     } catch (IOException e) {
-      // e.printStackTrace();
+      e.printStackTrace();
       // System.out.println(cliID);
-      try{
+      try {
         cli.close();
-      }catch(Exception e1){
+      } catch (Exception e1) {
         // donothing
-      }     
+      }
       return null;
       // return sendRequestAndAwaitForReply(typeID, cmdID, key, value);
     }
@@ -220,12 +211,15 @@ public class GoLevelDBClient extends DB {
 
   @Override
   public Status read(String table, String key, Set<String> fields, Map<String, ByteIterator> result) {
-    
-    Command reply=sendRequestAndAwaitForReply(Command.GET, getcommandID(), key, "");
-    if (reply != null && reply.commandType == Command.GET){
-      return Status.OK;
+
+    String reply = sendRequestAndAwaitForReply(Command.GET, getcommandID(), key, "");
+    if (reply ==Command.LEADERIS) {
+      return Status.ERROR;
     }
-    return Status.ERROR;
+    if (reply == Command.BAD) {
+      return Status.BAD_REQUEST;
+    }
+    return Status.OK;
   }
 
   @Override
@@ -238,11 +232,14 @@ public class GoLevelDBClient extends DB {
   @Override
   public Status update(String table, String key, Map<String, ByteIterator> values) {
     String value = randomString(valueSize);
-    Command reply=sendRequestAndAwaitForReply(Command.PUT, getcommandID(), key, value);
-    if (reply != null && reply.commandType == Command.PUT){
-      return Status.OK;
+    String reply = sendRequestAndAwaitForReply(Command.PUT, getcommandID(), key, value);
+    if (reply ==Command.LEADERIS) {
+      return Status.ERROR;
     }
-    return Status.ERROR;
+    if (reply == Command.BAD) {
+      return Status.BAD_REQUEST;
+    }
+    return Status.OK;
   }
 
   @Override

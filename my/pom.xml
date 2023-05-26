@@ -25,7 +25,7 @@ LICENSE file.
     <relativePath>../binding-parent</relativePath>
   </parent>
   
-  <artifactId>goleveldb-binding</artifactId>
+  <artifactId>my-binding</artifactId>
   <name>go leveldb Binding</name>
   <packaging>jar</packaging>
 
@@ -39,7 +39,7 @@ LICENSE file.
       <dependency>
         <groupId>org.json</groupId>
         <artifactId>json</artifactId>
-        <version>20210307</version>
+        <version>20230227</version>
     </dependency>
   </dependencies>
 </project>
